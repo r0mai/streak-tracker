@@ -194,39 +194,53 @@ function showToast(message) {
 // Request notification permission
 async function requestNotificationPermission() {
     if (!('Notification' in window)) {
-        showToast('Notifications not supported');
-        return false;
+        showToast('Notifications not supported on this browser');
+        return { granted: false, reason: 'unsupported' };
     }
     
     if (Notification.permission === 'granted') {
-        return true;
+        return { granted: true };
     }
     
-    if (Notification.permission !== 'denied') {
+    if (Notification.permission === 'denied') {
+        showToast('Notifications blocked. Please enable in browser settings.');
+        return { granted: false, reason: 'denied' };
+    }
+    
+    // Permission is 'default' - ask the user
+    try {
         const permission = await Notification.requestPermission();
-        return permission === 'granted';
+        if (permission === 'granted') {
+            return { granted: true };
+        } else {
+            showToast('Notification permission not granted');
+            return { granted: false, reason: 'not_granted' };
+        }
+    } catch (error) {
+        console.error('Error requesting notification permission:', error);
+        showToast('Could not request notification permission');
+        return { granted: false, reason: 'error' };
     }
-    
-    return false;
 }
 
 // Schedule daily notification
 async function scheduleNotification() {
     if (!('serviceWorker' in navigator)) {
         showToast('Service Worker not supported');
+        document.getElementById('notificationToggle').checked = false;
         return;
     }
     
     try {
-        const registration = await navigator.serviceWorker.ready;
-        
-        // Check if we have permission
-        const hasPermission = await requestNotificationPermission();
-        if (!hasPermission) {
-            showToast('Please allow notifications');
+        // Check if we have permission first (before waiting for SW)
+        const permissionResult = await requestNotificationPermission();
+        if (!permissionResult.granted) {
             document.getElementById('notificationToggle').checked = false;
+            // Toast already shown by requestNotificationPermission
             return;
         }
+        
+        const registration = await navigator.serviceWorker.ready;
         
         // Store that notifications are enabled
         const data = loadData();
@@ -244,6 +258,7 @@ async function scheduleNotification() {
     } catch (error) {
         console.error('Error scheduling notification:', error);
         showToast('Could not enable reminders');
+        document.getElementById('notificationToggle').checked = false;
     }
 }
 
@@ -265,16 +280,42 @@ async function cancelNotifications() {
     showToast('Reminders disabled');
 }
 
+// Check if running in a context that supports PWA features
+function checkPWASupport() {
+    const isSecureContext = window.isSecureContext;
+    const hasServiceWorker = 'serviceWorker' in navigator;
+    const hasNotifications = 'Notification' in window;
+    const isFileProtocol = window.location.protocol === 'file:';
+    
+    console.log('PWA Support Check:', {
+        isSecureContext,
+        hasServiceWorker,
+        hasNotifications,
+        isFileProtocol,
+        protocol: window.location.protocol
+    });
+    
+    return {
+        canUseServiceWorker: hasServiceWorker && !isFileProtocol,
+        canUseNotifications: hasNotifications && isSecureContext,
+        isFileProtocol
+    };
+}
+
 // Initialize app
 async function init() {
-    // Register service worker
-    if ('serviceWorker' in navigator) {
+    const pwaSupport = checkPWASupport();
+    
+    // Register service worker (only if supported)
+    if (pwaSupport.canUseServiceWorker) {
         try {
             const registration = await navigator.serviceWorker.register('sw.js');
             console.log('Service Worker registered:', registration.scope);
         } catch (error) {
             console.error('Service Worker registration failed:', error);
         }
+    } else {
+        console.log('Service Worker not available (file:// protocol or unsupported browser)');
     }
     
     // Set up button listeners
@@ -286,8 +327,25 @@ async function init() {
     });
     
     // Set up notification toggle
-    document.getElementById('notificationToggle').addEventListener('change', (e) => {
+    const notificationToggle = document.getElementById('notificationToggle');
+    
+    // Disable toggle if notifications aren't supported
+    if (!pwaSupport.canUseNotifications) {
+        notificationToggle.disabled = true;
+        notificationToggle.parentElement.parentElement.style.opacity = '0.5';
+        notificationToggle.parentElement.parentElement.title = 
+            pwaSupport.isFileProtocol 
+                ? 'Notifications require serving via HTTP(S). Use a local server or deploy to GitHub Pages.'
+                : 'Notifications not supported in this browser';
+    }
+    
+    notificationToggle.addEventListener('change', (e) => {
         if (e.target.checked) {
+            if (pwaSupport.isFileProtocol) {
+                showToast('Serve via HTTP for notifications (try: npx serve .)');
+                e.target.checked = false;
+                return;
+            }
             scheduleNotification();
         } else {
             cancelNotifications();
