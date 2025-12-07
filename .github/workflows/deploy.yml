@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate PWA Icons
+        run: |
+          # Create PNG icons from SVG using rsvg-convert (more reliable than ImageMagick for SVG)
+          sudo apt-get update && sudo apt-get install -y librsvg2-bin
+          
+          # Convert SVG icons to PNG
+          rsvg-convert -w 192 -h 192 icons/icon-192.svg -o icons/icon-192.png
+          rsvg-convert -w 512 -h 512 icons/icon-512.svg -o icons/icon-512.png
+          
+          echo "Generated PNG icons:"
+          ls -la icons/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
