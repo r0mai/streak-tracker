@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -231,6 +232,7 @@ fun ActivityButtons(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityButton(
     emoji: String,
