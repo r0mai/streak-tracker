@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,10 +39,34 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Generate version tag
+        id: version
+        run: |
+          VERSION="v1.0.0-$(date +'%Y%m%d')-${GITHUB_SHA::7}"
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+      - name: Rename APK with version
+        run: |
+          mv app/build/outputs/apk/release/app-release.apk \
+             app/build/outputs/apk/release/streak-tracker-${{ steps.version.outputs.tag }}.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: streak-tracker-release
-          path: app/build/outputs/apk/release/app-release.apk
-          retention-days: 30
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Streak Tracker ${{ steps.version.outputs.tag }}
+          body: |
+            ## Streak Tracker Release
+            
+            **Commit:** ${{ github.sha }}
+            **Built:** ${{ github.event.head_commit.timestamp }}
+            
+            ### Installation
+            1. Download the APK file below
+            2. Transfer to your Android device
+            3. Enable "Install from unknown sources" if prompted
+            4. Open the APK to install
+          files: app/build/outputs/apk/release/streak-tracker-${{ steps.version.outputs.tag }}.apk
+          generate_release_notes: true
 
