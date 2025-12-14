@@ -1,67 +1,24 @@
-// Service Worker for Streak Tracker
+// Service Worker for Streak Tracker - Notifications Only
 
-const CACHE_NAME = 'streak-tracker-v1';
-const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './app.js',
-    './manifest.json'
-];
-
-// Install event - cache assets
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Caching app assets');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-            .then(() => self.skipWaiting())
-    );
+// Skip caching - just activate immediately
+self.addEventListener('install', () => {
+    self.skipWaiting();
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then((cacheNames) => {
-                return Promise.all(
-                    cacheNames
-                        .filter((name) => name !== CACHE_NAME)
-                        .map((name) => caches.delete(name))
-                );
-            })
-            .then(() => self.clients.claim())
-    );
-});
-
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
-    );
+    event.waitUntil(self.clients.claim());
 });
 
 // Handle messages from main app
 self.addEventListener('message', (event) => {
     if (event.data.type === 'SCHEDULE_NOTIFICATION') {
         scheduleNotificationCheck();
-    } else if (event.data.type === 'CANCEL_NOTIFICATION') {
-        // Clear any scheduled checks
-        // Note: In a real app, you'd want to track and clear specific timers
     }
 });
 
 // Check if notification should be sent
 function scheduleNotificationCheck() {
     // Check every hour if user hasn't logged activity today
-    // In production, you might want to use a background sync or push notification service
     setInterval(() => {
         checkAndNotify();
     }, 60 * 60 * 1000); // Every hour
@@ -77,7 +34,10 @@ async function checkAndNotify() {
         return;
     }
     
-    // Check if already notified today
+    // Check localStorage via client to see if user logged today
+    const clients = await self.clients.matchAll({ type: 'window' });
+    
+    // If no clients open, check our cached notification date
     const today = new Date().toISOString().split('T')[0];
     const lastNotified = await getFromCache('lastNotifiedDate');
     
@@ -85,28 +45,38 @@ async function checkAndNotify() {
         return;
     }
     
-    // Check if user has logged activity today
-    const lastActivityDate = await getFromCache('lastActivityDate');
+    // Try to get last activity date from a client
+    let lastActivityDate = null;
+    for (const client of clients) {
+        try {
+            // Request the last activity date from the client
+            client.postMessage({ type: 'GET_LAST_ACTIVITY' });
+        } catch (e) {
+            // Client might not be responding
+        }
+    }
     
-    if (lastActivityDate !== today) {
-        // User hasn't logged today - send notification
-        self.registration.showNotification('Streak Tracker 🔥', {
-            body: "Don't forget to log your activity today!",
-            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔥</text></svg>',
-            badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔥</text></svg>',
-            tag: 'streak-reminder',
-            requireInteraction: true,
-            actions: [
-                { action: 'open', title: 'Log Activity' }
-            ]
-        });
-        
-        // Mark as notified
+    // If no clients are open, we should notify (user hasn't opened app)
+    if (clients.length === 0) {
+        await sendNotification();
         await saveToCache('lastNotifiedDate', today);
     }
 }
 
-// Simple cache-based storage for service worker
+async function sendNotification() {
+    await self.registration.showNotification('Streak Tracker 🔥', {
+        body: "Don't forget to log your activity today!",
+        icon: 'icons/icon-192.svg',
+        badge: 'icons/icon-192.svg',
+        tag: 'streak-reminder',
+        requireInteraction: true,
+        actions: [
+            { action: 'open', title: 'Log Activity' }
+        ]
+    });
+}
+
+// Simple cache-based storage for service worker state
 async function getFromCache(key) {
     try {
         const cache = await caches.open('streak-data');
@@ -134,26 +104,25 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then((clientList) => {
                 // If app is already open, focus it
                 for (const client of clientList) {
-                    if (client.url.includes('streak-tracker') && 'focus' in client) {
+                    if ('focus' in client) {
                         return client.focus();
                     }
                 }
                 // Otherwise open new window
-                if (clients.openWindow) {
-                    return clients.openWindow('./');
+                if (self.clients.openWindow) {
+                    return self.clients.openWindow('./');
                 }
             })
     );
 });
 
-// Periodic background sync (if supported)
+// Periodic background sync (if supported by browser)
 self.addEventListener('periodicsync', (event) => {
     if (event.tag === 'streak-check') {
         event.waitUntil(checkAndNotify());
     }
 });
-
