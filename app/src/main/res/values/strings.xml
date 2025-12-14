@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Streak Tracker</string>
+    <string name="running">Running</string>
+    <string name="aerobic">Aerobic</string>
+    <string name="swimming">Swimming</string>
+    <string name="streak_days">%d day streak</string>
+    <string name="streak_days_plural">%d days streak</string>
+    <string name="today_activity">Today: %s</string>
+    <string name="no_activity_today">No activity logged today</string>
+    <string name="notification_channel_name">Daily Reminders</string>
+    <string name="notification_channel_description">Reminds you to log your daily activity</string>
+    <string name="notification_title">Don\'t break your streak!</string>
+    <string name="notification_text">You haven\'t logged your activity today. Keep your streak going!</string>
+</resources>
+

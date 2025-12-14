@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Fire/flame icon for streak -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24
+            C54,24 42,36 42,48
+            C42,54 45,60 48,63
+            C45,60 44,54 46,48
+            C48,42 54,36 54,36
+            C54,36 60,42 62,48
+            C64,54 63,60 60,63
+            C63,60 66,54 66,48
+            C66,36 54,24 54,24Z
+            M54,42
+            C54,42 48,48 48,54
+            C48,60 51,66 54,69
+            C57,66 60,60 60,54
+            C60,48 54,42 54,42Z
+            M54,54
+            C52,54 51,55.5 51,57
+            C51,58.5 52,60 54,63
+            C56,60 57,58.5 57,57
+            C57,55.5 56,54 54,54Z"/>
+</vector>
+
