@@ -77,6 +77,8 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // Reschedule reminder when app comes to foreground
         ReminderWorker.scheduleReminder(this)
+        // Check if day changed while app was in background and refresh if needed
+        viewModel.refreshForDayChange()
     }
     
     private fun requestNotificationPermission() {

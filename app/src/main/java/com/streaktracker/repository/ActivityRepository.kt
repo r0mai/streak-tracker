@@ -10,7 +10,11 @@ import java.time.LocalDate
 class ActivityRepository(private val activityDao: ActivityDao) {
 
     fun getTodayActivity(): Flow<ActivityEntry?> {
-        return activityDao.getActivityForDateFlow(LocalDate.now())
+        return getActivityForDate(LocalDate.now())
+    }
+
+    fun getActivityForDate(date: LocalDate): Flow<ActivityEntry?> {
+        return activityDao.getActivityForDateFlow(date)
     }
 
     suspend fun getTodayActivityDirect(): ActivityEntry? {
