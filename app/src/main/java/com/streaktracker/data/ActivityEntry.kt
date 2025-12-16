@@ -9,9 +9,11 @@ import java.time.LocalDate
 @Entity(tableName = "activities")
 @TypeConverters(Converters::class)
 data class ActivityEntry(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     val date: LocalDate,
     val activityType: ActivityType,
+    val duration: Int,  // Duration in minutes
     val timestamp: Long = System.currentTimeMillis()
 )
 

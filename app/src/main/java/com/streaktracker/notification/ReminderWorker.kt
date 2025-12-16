@@ -3,6 +3,7 @@ package com.streaktracker.notification
 import android.content.Context
 import androidx.work.*
 import com.streaktracker.data.ActivityDatabase
+import com.streaktracker.data.SettingsDataStore
 import com.streaktracker.repository.ActivityRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,24 +16,29 @@ class ReminderWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    
+
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
             try {
                 val database = ActivityDatabase.getDatabase(applicationContext)
-                val repository = ActivityRepository(database.activityDao())
-                
-                // Check if activity was logged today
+                val settings = SettingsDataStore(applicationContext)
+                val repository = ActivityRepository(
+                    activityDao = database.activityDao(),
+                    dayStatusDao = database.dayStatusDao(),
+                    settings = settings
+                )
+
+                // Check if daily goal is not yet met
                 val isStreakAtRisk = repository.isStreakAtRisk()
-                
+
                 if (isStreakAtRisk) {
                     // Show notification
                     NotificationHelper.showReminderNotification(applicationContext)
                 }
-                
+
                 // Schedule next reminder for tomorrow
                 scheduleNextReminder(applicationContext)
-                
+
                 Result.success()
             } catch (e: Exception) {
                 Result.retry()

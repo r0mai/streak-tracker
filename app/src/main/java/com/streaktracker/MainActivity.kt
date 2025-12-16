@@ -57,13 +57,34 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val uiState by viewModel.uiState.collectAsState()
-                    
+
                     MainScreen(
                         uiState = uiState,
-                        onActivityClick = { activityType ->
-                            viewModel.logActivity(activityType)
+                        onActivitySelect = { activityType ->
+                            viewModel.selectActivity(activityType)
+                        },
+                        onAddDuration = { minutes ->
+                            viewModel.addDuration(minutes)
+                        },
+                        onClearDuration = {
+                            viewModel.clearDuration()
+                        },
+                        onConfirmActivity = {
+                            viewModel.confirmActivity()
                             // Cancel notification since activity is now logged
                             NotificationHelper.cancelReminderNotification(this)
+                        },
+                        onCancelInput = {
+                            viewModel.cancelInput()
+                        },
+                        onOpenSettings = {
+                            viewModel.openSettings()
+                        },
+                        onCloseSettings = {
+                            viewModel.closeSettings()
+                        },
+                        onSetDailyGoal = { minutes ->
+                            viewModel.setDailyGoal(minutes)
                         },
                         onPreviousMonth = { viewModel.previousMonth() },
                         onNextMonth = { viewModel.nextMonth() }

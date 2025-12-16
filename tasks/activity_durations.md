@@ -2,7 +2,7 @@
 
 Extend activities with duration tracking and introduce a daily goal system.
 
-## Status: Planning Complete
+## Status: Implementation Complete (Pending Testing)
 
 ## Feature Summary
 
@@ -263,65 +263,65 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 ## Implementation Checklist
 
 ### Phase 1: Data Layer
-- [ ] Update `ActivityEntry`: add `id` (auto-gen PK), add `duration` field
-- [ ] Create `DayStatus` entity
-- [ ] Create `DayStatusDao` with queries: getStatus, getUnfinalizedBefore, upsert
-- [ ] Update `ActivityDao`: getTotalDurationForDate, getEarliestDate, remove date-as-PK constraint
-- [ ] Add type converters for new fields if needed
-- [ ] Write Room migration (v1 → v2)
-- [ ] Update `ActivityDatabase` version and add migration
+- [x] Update `ActivityEntry`: add `id` (auto-gen PK), add `duration` field
+- [x] Create `DayStatus` entity
+- [x] Create `DayStatusDao` with queries: getStatus, getUnfinalizedBefore, upsert
+- [x] Update `ActivityDao`: getTotalDurationForDate, getEarliestDate, remove date-as-PK constraint
+- [x] Add type converters for new fields if needed
+- [x] Write Room migration (v1 → v2)
+- [x] Update `ActivityDatabase` version and add migration
 
 ### Phase 2: Settings
-- [ ] Add DataStore dependency
-- [ ] Create `SettingsDataStore` class
-- [ ] Expose `dailyGoalMinutes` as Flow
-- [ ] Update `StreakTrackerApplication` to provide settings
+- [x] Add DataStore dependency
+- [x] Create `SettingsDataStore` class
+- [x] Expose `dailyGoalMinutes` as Flow
+- [x] Update `StreakTrackerApplication` to provide settings
 
 ### Phase 3: Repository Layer
-- [ ] Update `ActivityRepository`:
-  - [ ] `logActivity(type, duration)` - new signature
-  - [ ] `getTodayProgress(): Flow<Pair<Int, Int>>`
-  - [ ] `calculateStreak()` - new logic using DayStatus
-  - [ ] `isStreakAtRisk()` - check if today's total < goal
-- [ ] Create day finalization logic (can be in repository or separate class)
-- [ ] Call `finalizePastDays()` on app start and day change
+- [x] Update `ActivityRepository`:
+  - [x] `logActivity(type, duration)` - new signature
+  - [x] `getTodayProgress(): Flow<Pair<Int, Int>>`
+  - [x] `calculateStreak()` - new logic using DayStatus
+  - [x] `isStreakAtRisk()` - check if today's total < goal
+- [x] Create day finalization logic (in repository)
+- [x] Call `finalizePastDays()` on app start and day change
 
 ### Phase 4: ViewModel Updates
-- [ ] Update `MainUiState`:
-  - [ ] Add `todayProgress: Int`
-  - [ ] Add `dailyGoal: Int`
-  - [ ] Add `selectedActivityType: ActivityType?` (null = buttons visible, non-null = panel visible)
-  - [ ] Add `pendingDuration: Int`
-  - [ ] Add `showSettings: Boolean`
-- [ ] Add actions: selectActivity, addDuration, clearDuration, confirmActivity, cancelInput
-- [ ] Add settings actions: openSettings, closeSettings, setDailyGoal
-- [ ] Update day-change handling to trigger finalization
+- [x] Update `MainUiState`:
+  - [x] Add `todayProgress: Int`
+  - [x] Add `dailyGoal: Int`
+  - [x] Add `selectedActivityType: ActivityType?` (null = buttons visible, non-null = panel visible)
+  - [x] Add `pendingDuration: Int`
+  - [x] Add `showSettings: Boolean`
+- [x] Add actions: selectActivity, addDuration, clearDuration, confirmActivity, cancelInput
+- [x] Add settings actions: openSettings, closeSettings, setDailyGoal
+- [x] Update day-change handling to trigger finalization
 
 ### Phase 5: UI - Main Screen
-- [ ] Add progress bar composable
-- [ ] Add settings button (cogwheel icon)
-- [ ] Conditionally show activity buttons OR input panel based on state
+- [x] Add progress bar composable
+- [x] Add settings button (cogwheel icon)
+- [x] Conditionally show activity buttons OR input panel based on state
 
 ### Phase 6: UI - Activity Input Panel
-- [ ] Create `ActivityInputPanel` composable
-- [ ] Duration label with activity icon
-- [ ] Increment buttons (+5m, +15m, +1h)
-- [ ] Clear button
-- [ ] OK button (disabled when duration = 0)
-- [ ] Cancel button
+- [x] Create `ActivityInputPanel` composable
+- [x] Duration label with activity icon
+- [x] Increment buttons (+5m, +15m, +1h)
+- [x] Clear button
+- [x] OK button (disabled when duration = 0)
+- [x] Cancel button
 
 ### Phase 7: UI - Settings Panel
-- [ ] Create `SettingsPanel` composable (slide-in from right or bottom)
-- [ ] Radio buttons for goal options (15, 30, 60, 90, 120)
-- [ ] Done button to close
+- [x] Create `SettingsPanel` composable (slide-in from right)
+- [x] Radio buttons for goal options (15, 30, 60, 90, 120)
+- [x] Done button to close
 
 ### Phase 8: UI - Calendar Updates
-- [ ] Update calendar day rendering to show three states
-- [ ] Update legend if present
+- [x] Update calendar day rendering to show three states
+- [x] Update legend (shows Complete/Partial indicators)
 
 ### Phase 9: Notifications
-- [ ] Update `ReminderWorker` to check today's total vs goal
-- [ ] Update notification text if needed
+- [x] Update `ReminderWorker` to check today's total vs goal
+- [ ] Update notification text if needed (optional)
 
 ### Phase 10: Testing & Polish
 - [ ] Test migration with existing data

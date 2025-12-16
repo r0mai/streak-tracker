@@ -6,10 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [ActivityEntry::class], version = 1, exportSchema = false)
+@Database(
+    entities = [ActivityEntry::class, DayStatus::class],
+    version = 2,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class ActivityDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
+    abstract fun dayStatusDao(): DayStatusDao
 
     companion object {
         @Volatile
@@ -21,7 +26,9 @@ abstract class ActivityDatabase : RoomDatabase() {
                     context.applicationContext,
                     ActivityDatabase::class.java,
                     "streak_tracker_database"
-                ).build()
+                )
+                    .addMigrations(MIGRATION_1_2)
+                    .build()
                 INSTANCE = instance
                 instance
             }
