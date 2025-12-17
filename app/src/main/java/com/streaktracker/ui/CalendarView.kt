@@ -103,15 +103,15 @@ fun CalendarView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Day of Week Headers
+            // Day of Week Headers (Monday-first)
             val dayNames = listOf(
-                stringResource(R.string.calendar_day_sunday),
                 stringResource(R.string.calendar_day_monday),
                 stringResource(R.string.calendar_day_tuesday),
                 stringResource(R.string.calendar_day_wednesday),
                 stringResource(R.string.calendar_day_thursday),
                 stringResource(R.string.calendar_day_friday),
-                stringResource(R.string.calendar_day_saturday)
+                stringResource(R.string.calendar_day_saturday),
+                stringResource(R.string.calendar_day_sunday)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -135,7 +135,7 @@ fun CalendarView(
             // Calendar Grid
             val firstDayOfMonth = currentMonth.atDay(1)
             val lastDayOfMonth = currentMonth.atEndOfMonth()
-            val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // Sunday = 0
+            val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value - 1 // Monday = 0
             val daysInMonth = lastDayOfMonth.dayOfMonth
 
             val totalCells = firstDayOfWeek + daysInMonth
