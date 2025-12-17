@@ -16,7 +16,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.streaktracker.R
 import com.streaktracker.data.ActivityEntry
 import com.streaktracker.data.ActivityType
 import com.streaktracker.data.DayStatus
@@ -71,7 +73,7 @@ fun CalendarView(
                 IconButton(onClick = onPreviousMonth) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowLeft,
-                        contentDescription = "Previous month",
+                        contentDescription = stringResource(R.string.calendar_previous_month),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -89,7 +91,7 @@ fun CalendarView(
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowRight,
-                        contentDescription = "Next month",
+                        contentDescription = stringResource(R.string.calendar_next_month),
                         tint = if (isCurrentMonth) {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                         } else {
@@ -102,11 +104,20 @@ fun CalendarView(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Day of Week Headers
+            val dayNames = listOf(
+                stringResource(R.string.calendar_day_sunday),
+                stringResource(R.string.calendar_day_monday),
+                stringResource(R.string.calendar_day_tuesday),
+                stringResource(R.string.calendar_day_wednesday),
+                stringResource(R.string.calendar_day_thursday),
+                stringResource(R.string.calendar_day_friday),
+                stringResource(R.string.calendar_day_saturday)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa").forEach { day ->
+                dayNames.forEach { day ->
                     Text(
                         text = day,
                         modifier = Modifier.weight(1f),
@@ -304,17 +315,17 @@ fun CalendarLegend() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            LegendItem(color = RunningColor, label = "Running")
-            LegendItem(color = AerobicColor, label = "Aerobic")
-            LegendItem(color = SwimmingColor, label = "Swimming")
+            LegendItem(color = RunningColor, label = stringResource(R.string.running))
+            LegendItem(color = AerobicColor, label = stringResource(R.string.aerobic))
+            LegendItem(color = SwimmingColor, label = stringResource(R.string.swimming))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            CompletionLegendItem(isFilled = true, label = "Complete")
-            CompletionLegendItem(isFilled = false, label = "Partial")
+            CompletionLegendItem(isFilled = true, label = stringResource(R.string.legend_complete))
+            CompletionLegendItem(isFilled = false, label = stringResource(R.string.legend_partial))
         }
     }
 }

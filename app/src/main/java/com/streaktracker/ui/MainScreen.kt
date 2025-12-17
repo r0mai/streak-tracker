@@ -22,7 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.streaktracker.R
 import com.streaktracker.data.ActivityType
 import com.streaktracker.data.SettingsDataStore
 import com.streaktracker.ui.theme.*
@@ -68,7 +70,7 @@ fun MainScreen(
                 IconButton(onClick = onOpenSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
+                        contentDescription = stringResource(R.string.settings_content_description),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -194,7 +196,7 @@ fun StreakDisplay(
         )
 
         Text(
-            text = if (streak == 1) "day streak" else "days streak",
+            text = stringResource(R.string.streak_day),
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -233,14 +235,14 @@ fun ProgressDisplay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isComplete) "✓ Goal reached!" else "Today's progress",
+                    text = stringResource(if (isComplete) R.string.progress_goal_reached else R.string.progress_today),
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = if (isComplete) FireOrange else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (isComplete) FontWeight.SemiBold else FontWeight.Normal
                     )
                 )
                 Text(
-                    text = "$progress of $goal min",
+                    text = stringResource(R.string.progress_format, progress, goal),
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = if (isComplete) FireOrange else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
@@ -274,21 +276,21 @@ fun ActivityButtons(
     ) {
         ActivityButton(
             emoji = "🏃",
-            label = "Running",
+            label = stringResource(R.string.running),
             color = RunningColor,
             onClick = { onActivitySelect(ActivityType.RUNNING) }
         )
 
         ActivityButton(
             emoji = "🏋️",
-            label = "Aerobic",
+            label = stringResource(R.string.aerobic),
             color = AerobicColor,
             onClick = { onActivitySelect(ActivityType.AEROBIC) }
         )
 
         ActivityButton(
             emoji = "🏊",
-            label = "Swimming",
+            label = stringResource(R.string.swimming),
             color = SwimmingColor,
             onClick = { onActivitySelect(ActivityType.SWIMMING) }
         )
@@ -350,9 +352,9 @@ fun ActivityInputPanel(
     modifier: Modifier = Modifier
 ) {
     val (emoji, label, color) = when (activityType) {
-        ActivityType.RUNNING -> Triple("🏃", "Running", RunningColor)
-        ActivityType.AEROBIC -> Triple("🏋️", "Aerobic", AerobicColor)
-        ActivityType.SWIMMING -> Triple("🏊", "Swimming", SwimmingColor)
+        ActivityType.RUNNING -> Triple("🏃", stringResource(R.string.running), RunningColor)
+        ActivityType.AEROBIC -> Triple("🏋️", stringResource(R.string.aerobic), AerobicColor)
+        ActivityType.SWIMMING -> Triple("🏊", stringResource(R.string.swimming), SwimmingColor)
     }
 
     Card(
@@ -371,7 +373,7 @@ fun ActivityInputPanel(
             // Duration label
             Text(
                 text = if (pendingDuration > 0) {
-                    "+ $pendingDuration min $label $emoji"
+                    stringResource(R.string.input_duration_format, pendingDuration, label, emoji)
                 } else {
                     "$label $emoji"
                 },
@@ -389,15 +391,15 @@ fun ActivityInputPanel(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 DurationButton(
-                    text = "+5 min",
+                    text = stringResource(R.string.duration_5min),
                     onClick = { onAddDuration(5) }
                 )
                 DurationButton(
-                    text = "+15 min",
+                    text = stringResource(R.string.duration_15min),
                     onClick = { onAddDuration(15) }
                 )
                 DurationButton(
-                    text = "+1 h",
+                    text = stringResource(R.string.duration_1h),
                     onClick = { onAddDuration(60) }
                 )
             }
@@ -413,7 +415,7 @@ fun ActivityInputPanel(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -423,7 +425,7 @@ fun ActivityInputPanel(
                     modifier = Modifier.weight(1f),
                     enabled = pendingDuration > 0
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.action_clear))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -436,7 +438,7 @@ fun ActivityInputPanel(
                         containerColor = color
                     )
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.action_ok))
                 }
             }
         }
@@ -479,20 +481,20 @@ fun SettingsPanel(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Settings",
+                    text = stringResource(R.string.settings_title),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
                 )
                 TextButton(onClick = onClose) {
-                    Text("Done")
+                    Text(stringResource(R.string.action_done))
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Daily Goal",
+                text = stringResource(R.string.settings_daily_goal),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold
                 )
@@ -540,7 +542,11 @@ fun GoalOptionRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (minutes < 60) "$minutes min" else "${minutes / 60} h ${if (minutes % 60 > 0) "${minutes % 60} min" else ""}".trim(),
+                text = when {
+                    minutes < 60 -> stringResource(R.string.goal_minutes_format, minutes)
+                    minutes % 60 == 0 -> stringResource(R.string.goal_hours_format, minutes / 60)
+                    else -> stringResource(R.string.goal_hours_minutes_format, minutes / 60, minutes % 60)
+                },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                 )

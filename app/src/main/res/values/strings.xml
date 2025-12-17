@@ -1,13 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Streak Tracker</string>
+
+    <!-- Activity types -->
     <string name="running">Running</string>
     <string name="aerobic">Aerobic</string>
     <string name="swimming">Swimming</string>
-    <string name="streak_days">%d day streak</string>
-    <string name="streak_days_plural">%d days streak</string>
+
+    <!-- Streak display -->
+    <string name="streak_day">day streak</string>
+
+    <!-- Progress display -->
+    <string name="progress_goal_reached">✓ Goal reached!</string>
+    <string name="progress_today">Today\'s progress</string>
+    <string name="progress_format">%1$d of %2$d min</string>
+
+    <!-- Duration buttons -->
+    <string name="duration_5min">+5 min</string>
+    <string name="duration_15min">+15 min</string>
+    <string name="duration_1h">+1 h</string>
+
+    <!-- Activity input panel -->
+    <string name="input_duration_format">+ %1$d min %2$s %3$s</string>
+
+    <!-- Action buttons -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_ok">OK</string>
+    <string name="action_done">Done</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_content_description">Settings</string>
+    <string name="settings_daily_goal">Daily Goal</string>
+    <string name="goal_minutes_format">%d min</string>
+    <string name="goal_hours_format">%d h</string>
+    <string name="goal_hours_minutes_format">%1$d h %2$d min</string>
+
+    <!-- Calendar -->
+    <string name="calendar_previous_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_day_sunday">Su</string>
+    <string name="calendar_day_monday">Mo</string>
+    <string name="calendar_day_tuesday">Tu</string>
+    <string name="calendar_day_wednesday">We</string>
+    <string name="calendar_day_thursday">Th</string>
+    <string name="calendar_day_friday">Fr</string>
+    <string name="calendar_day_saturday">Sa</string>
+    <string name="legend_complete">Complete</string>
+    <string name="legend_partial">Partial</string>
+
+    <!-- Legacy (for reference) -->
     <string name="today_activity">Today: %s</string>
     <string name="no_activity_today">No activity logged today</string>
+
+    <!-- Notifications -->
     <string name="notification_channel_name">Daily Reminders</string>
     <string name="notification_channel_description">Reminds you to log your daily activity</string>
     <string name="notification_title">Don\'t break your streak!</string>
