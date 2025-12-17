@@ -9,6 +9,7 @@
 
     <!-- Streak display -->
     <string name="streak_day">day streak</string>
+    <string name="streak_none">Start a streak!</string>
 
     <!-- Progress display -->
     <string name="progress_goal_reached">✓ Goal reached!</string>

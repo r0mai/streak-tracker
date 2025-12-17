@@ -166,6 +166,8 @@ fun StreakDisplay(
         label = "streak"
     )
 
+    val hasStreak = streak > 0
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -178,37 +180,53 @@ fun StreakDisplay(
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
-                        colors = listOf(
-                            FireOrangeLight.copy(alpha = 0.4f),
-                            Color.Transparent
-                        )
+                        colors = if (hasStreak) {
+                            listOf(
+                                FireOrangeLight.copy(alpha = 0.4f),
+                                Color.Transparent
+                            )
+                        } else {
+                            listOf(
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f),
+                                Color.Transparent
+                            )
+                        }
                     )
                 )
         ) {
             Text(
-                text = "🔥",
+                text = if (hasStreak) "🔥" else "💤",
                 fontSize = 48.sp
             )
         }
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Text(
-            text = animatedStreak.toInt().toString(),
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = FireOrange
+        if (hasStreak) {
+            Text(
+                text = animatedStreak.toInt().toString(),
+                style = MaterialTheme.typography.displayLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = FireOrange
+                )
             )
-        )
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-        Text(
-            text = stringResource(R.string.streak_day),
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                text = stringResource(R.string.streak_day),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
-        )
+        } else {
+            Text(
+                text = stringResource(R.string.streak_none),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
     }
 }
 
