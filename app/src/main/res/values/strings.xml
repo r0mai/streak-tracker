@@ -49,6 +49,8 @@
     <string name="calendar_day_saturday">Sa</string>
     <string name="legend_complete">Complete</string>
     <string name="legend_partial">Partial</string>
+    <string name="popup_total">Total: %d min</string>
+    <string name="popup_total_complete">Total: %d min ✓</string>
 
     <!-- Legacy (for reference) -->
     <string name="today_activity">Today: %s</string>

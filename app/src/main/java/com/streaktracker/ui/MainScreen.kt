@@ -40,6 +40,8 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onCloseSettings: () -> Unit,
     onSetDailyGoal: (Int) -> Unit,
+    onDayClick: (java.time.LocalDate) -> Unit,
+    onClearSelectedDay: () -> Unit,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     modifier: Modifier = Modifier
@@ -127,6 +129,9 @@ fun MainScreen(
                 dayStatuses = uiState.monthDayStatuses,
                 todayProgress = uiState.todayProgress,
                 dailyGoal = uiState.dailyGoal,
+                selectedDay = uiState.selectedDay,
+                onDayClick = onDayClick,
+                onDismissPopup = onClearSelectedDay,
                 onPreviousMonth = onPreviousMonth,
                 onNextMonth = onNextMonth,
                 modifier = Modifier.fillMaxWidth()

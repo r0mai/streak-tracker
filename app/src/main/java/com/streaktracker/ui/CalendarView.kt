@@ -2,6 +2,7 @@ package com.streaktracker.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,9 @@ fun CalendarView(
     dayStatuses: Map<LocalDate, DayStatus>,
     todayProgress: Int,
     dailyGoal: Int,
+    selectedDay: LocalDate?,
+    onDayClick: (LocalDate) -> Unit,
+    onDismissPopup: () -> Unit,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     modifier: Modifier = Modifier
@@ -187,14 +193,34 @@ fun CalendarView(
                                 .maxByOrNull { it.value.sumOf { entry -> entry.duration } }
                                 ?.key
 
+                            val isSelected = selectedDay == date
+                            val hasActivities = dayActivities.isNotEmpty() ||
+                                (isToday && todayProgress > 0)
+
                             CalendarDay(
                                 day = dayOfMonth,
                                 completionState = completionState,
                                 dominantActivityType = dominantActivityType,
                                 isToday = isToday,
                                 isFuture = isFuture,
+                                isSelected = isSelected,
+                                onClick = if (!isFuture && hasActivities) {
+                                    { onDayClick(date) }
+                                } else null,
                                 modifier = Modifier.weight(1f)
                             )
+
+                            // Show popup for selected day
+                            if (isSelected && hasActivities) {
+                                DaySummaryPopup(
+                                    date = date,
+                                    activities = dayActivities,
+                                    dayStatus = dayStatus,
+                                    todayProgress = if (isToday) todayProgress else null,
+                                    dailyGoal = if (isToday) dailyGoal else dayStatus?.dailyGoal,
+                                    onDismiss = onDismissPopup
+                                )
+                            }
                         } else {
                             // Empty cell
                             Box(modifier = Modifier.weight(1f).aspectRatio(1f))
@@ -218,6 +244,8 @@ fun CalendarDay(
     dominantActivityType: ActivityType?,
     isToday: Boolean,
     isFuture: Boolean,
+    isSelected: Boolean,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     val activityColor = dominantActivityType?.let { getActivityColor(it) }
@@ -241,7 +269,8 @@ fun CalendarDay(
     }
 
     val borderColor = when {
-        isToday -> MaterialTheme.colorScheme.primary
+        isSelected -> MaterialTheme.colorScheme.primary
+        isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         else -> Color.Transparent
     }
 
@@ -252,8 +281,15 @@ fun CalendarDay(
             .clip(CircleShape)
             .background(backgroundColor)
             .then(
-                if (isToday) {
+                if (isToday || isSelected) {
                     Modifier.border(2.dp, borderColor, CircleShape)
+                } else {
+                    Modifier
+                }
+            )
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClick = onClick)
                 } else {
                     Modifier
                 }
@@ -399,5 +435,101 @@ fun getActivityColor(activityType: ActivityType): Color {
         ActivityType.RUNNING -> RunningColor
         ActivityType.AEROBIC -> AerobicColor
         ActivityType.SWIMMING -> SwimmingColor
+    }
+}
+
+@Composable
+fun DaySummaryPopup(
+    date: LocalDate,
+    activities: List<ActivityEntry>,
+    dayStatus: DayStatus?,
+    todayProgress: Int?,
+    dailyGoal: Int?,
+    onDismiss: () -> Unit
+) {
+    Popup(
+        alignment = Alignment.TopCenter,
+        offset = androidx.compose.ui.unit.IntOffset(0, -120),
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(focusable = true)
+    ) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable(onClick = onDismiss),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Date header
+                val dateFormatter = java.time.format.DateTimeFormatter.ofPattern(
+                    "EEEE, MMMM d",
+                    Locale.getDefault()
+                )
+                Text(
+                    text = date.format(dateFormatter),
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Group activities by type and sum durations
+                val durationByType = activities
+                    .groupBy { it.activityType }
+                    .mapValues { (_, entries) -> entries.sumOf { it.duration } }
+
+                // Show each activity type with duration
+                ActivityType.entries.forEach { activityType ->
+                    val duration = durationByType[activityType]
+                    if (duration != null && duration > 0) {
+                        val emoji = when (activityType) {
+                            ActivityType.RUNNING -> "🏃"
+                            ActivityType.AEROBIC -> "🏋️"
+                            ActivityType.SWIMMING -> "🏊"
+                        }
+                        val label = when (activityType) {
+                            ActivityType.RUNNING -> stringResource(R.string.running)
+                            ActivityType.AEROBIC -> stringResource(R.string.aerobic)
+                            ActivityType.SWIMMING -> stringResource(R.string.swimming)
+                        }
+                        Text(
+                            text = "$emoji $label: $duration min",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                // Divider and total
+                val totalDuration = todayProgress ?: dayStatus?.totalDuration ?: activities.sumOf { it.duration }
+                if (totalDuration > 0) {
+                    Divider(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    )
+
+                    val goalMet = dailyGoal?.let { totalDuration >= it } ?: (dayStatus?.completed == true)
+                    Text(
+                        text = if (goalMet) {
+                            stringResource(R.string.popup_total_complete, totalDuration)
+                        } else {
+                            stringResource(R.string.popup_total, totalDuration)
+                        },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (goalMet) FireOrange else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                }
+            }
+        }
     }
 }

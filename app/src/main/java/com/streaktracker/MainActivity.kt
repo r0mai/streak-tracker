@@ -86,6 +86,12 @@ class MainActivity : ComponentActivity() {
                         onSetDailyGoal = { minutes ->
                             viewModel.setDailyGoal(minutes)
                         },
+                        onDayClick = { date ->
+                            viewModel.selectDay(date)
+                        },
+                        onClearSelectedDay = {
+                            viewModel.clearSelectedDay()
+                        },
                         onPreviousMonth = { viewModel.previousMonth() },
                         onNextMonth = { viewModel.nextMonth() }
                     )

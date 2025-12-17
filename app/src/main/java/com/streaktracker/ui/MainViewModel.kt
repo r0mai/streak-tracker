@@ -32,7 +32,9 @@ data class MainUiState(
     val selectedActivityType: ActivityType? = null,
     val pendingDuration: Int = 0,
     // Settings panel state
-    val showSettings: Boolean = false
+    val showSettings: Boolean = false,
+    // Calendar day selection state
+    val selectedDay: LocalDate? = null
 )
 
 class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
@@ -230,6 +232,20 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
         viewModelScope.launch {
             repository.setDailyGoal(minutes)
         }
+    }
+
+    // ===== Calendar Day Selection =====
+
+    fun selectDay(date: LocalDate) {
+        // Toggle: if same day is tapped again, deselect
+        val currentSelected = _uiState.value.selectedDay
+        _uiState.value = _uiState.value.copy(
+            selectedDay = if (currentSelected == date) null else date
+        )
+    }
+
+    fun clearSelectedDay() {
+        _uiState.value = _uiState.value.copy(selectedDay = null)
     }
 
     // ===== Navigation =====
