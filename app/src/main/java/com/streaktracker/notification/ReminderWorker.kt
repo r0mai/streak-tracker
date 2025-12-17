@@ -40,7 +40,7 @@ class ReminderWorker(
                 scheduleNextReminder(applicationContext)
 
                 Result.success()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Result.retry()
             }
         }

@@ -29,13 +29,4 @@ class SettingsDataStore(private val context: Context) {
             preferences[DAILY_GOAL_KEY] = minutes
         }
     }
-
-    suspend fun getDailyGoalOnce(): Int {
-        var goal = DEFAULT_DAILY_GOAL
-        context.dataStore.data.collect { preferences ->
-            goal = preferences[DAILY_GOAL_KEY] ?: DEFAULT_DAILY_GOAL
-            return@collect
-        }
-        return goal
-    }
 }
