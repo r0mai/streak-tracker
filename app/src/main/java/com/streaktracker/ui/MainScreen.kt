@@ -166,14 +166,15 @@ fun StreakDisplay(
         label = "streak"
     )
 
-    Column(
+    Row(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(80.dp)
+                .size(72.dp)
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
@@ -190,7 +191,7 @@ fun StreakDisplay(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Text(
             text = animatedStreak.toInt().toString(),
@@ -200,9 +201,11 @@ fun StreakDisplay(
             )
         )
 
+        Spacer(modifier = Modifier.width(8.dp))
+
         Text(
             text = stringResource(R.string.streak_day),
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
