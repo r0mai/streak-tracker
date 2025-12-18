@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Streak Tracker</string>
+
+    <!-- Activity types -->
+    <string name="running">Gyaloglás</string>
+    <string name="aerobic">Torna</string>
+    <string name="swimming">Úszás</string>
+
+    <!-- Streak display -->
+    <string name="streak_day">napos sorozat</string>
+    <string name="streak_none">Kezdj egy sorozatot!</string>
+
+    <!-- Progress display -->
+    <string name="progress_goal_reached">✓ Cél elérve!</string>
+    <string name="progress_today">Mai teljesítmény</string>
+    <string name="progress_format">%1$d / %2$d perc</string>
+
+    <!-- Duration buttons -->
+    <string name="duration_5min">+5 perc</string>
+    <string name="duration_15min">+15 perc</string>
+    <string name="duration_1h">+1 óra</string>
+
+    <!-- Activity input panel -->
+    <string name="input_duration_format">+ %1$d perc %2$s %3$s</string>
+
+    <!-- Action buttons -->
+    <string name="action_cancel">Mégse</string>
+    <string name="action_clear">Törlés</string>
+    <string name="action_ok">OK</string>
+    <string name="action_done">Kész</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Beállítások</string>
+    <string name="settings_content_description">Beállítások</string>
+    <string name="settings_daily_goal">Napi cél</string>
+    <string name="goal_minutes_format">%d perc</string>
+    <string name="goal_hours_format">%d óra</string>
+    <string name="goal_hours_minutes_format">%1$d óra %2$d perc</string>
+    <string name="settings_reminder_time">Napi emlékeztető</string>
+    <string name="settings_reminder_description">Értesítés, ha nem érted el a napi célodat</string>
+
+    <!-- Calendar -->
+    <string name="calendar_previous_month">Előző hónap</string>
+    <string name="calendar_next_month">Következő hónap</string>
+    <string name="calendar_day_monday">H</string>
+    <string name="calendar_day_tuesday">K</string>
+    <string name="calendar_day_wednesday">Sze</string>
+    <string name="calendar_day_thursday">Cs</string>
+    <string name="calendar_day_friday">P</string>
+    <string name="calendar_day_saturday">Szo</string>
+    <string name="calendar_day_sunday">V</string>
+    <string name="legend_complete">Teljesítve</string>
+    <string name="legend_partial">Részleges</string>
+    <string name="popup_total">Összesen: %d perc</string>
+    <string name="popup_total_complete">Összesen: %d perc ✓</string>
+
+    <!-- Legacy (for reference) -->
+    <string name="today_activity">Ma: %s</string>
+    <string name="no_activity_today">Ma még nincs tevékenység</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Napi emlékeztetők</string>
+    <string name="notification_channel_description">Emlékeztet a sorozatod folytatására</string>
+    <string name="notification_title">Ne szakítsd meg a sorozatod!</string>
+    <string name="notification_text">Még nem érted el a napi célodat. Folytasd a sorozatot!</string>
+</resources>

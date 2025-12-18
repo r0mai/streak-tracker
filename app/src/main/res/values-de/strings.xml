@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Streak Tracker</string>
+
+    <!-- Activity types -->
+    <string name="running">Walken</string>
+    <string name="aerobic">Gymnastik</string>
+    <string name="swimming">Schwimmen</string>
+
+    <!-- Streak display -->
+    <string name="streak_day">Tage Serie</string>
+    <string name="streak_none">Starte eine Serie!</string>
+
+    <!-- Progress display -->
+    <string name="progress_goal_reached">✓ Ziel erreicht!</string>
+    <string name="progress_today">Heutiger Fortschritt</string>
+    <string name="progress_format">%1$d von %2$d Min</string>
+
+    <!-- Duration buttons -->
+    <string name="duration_5min">+5 Min</string>
+    <string name="duration_15min">+15 Min</string>
+    <string name="duration_1h">+1 Std</string>
+
+    <!-- Activity input panel -->
+    <string name="input_duration_format">+ %1$d Min %2$s %3$s</string>
+
+    <!-- Action buttons -->
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_clear">Löschen</string>
+    <string name="action_ok">OK</string>
+    <string name="action_done">Fertig</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_content_description">Einstellungen</string>
+    <string name="settings_daily_goal">Tagesziel</string>
+    <string name="goal_minutes_format">%d Min</string>
+    <string name="goal_hours_format">%d Std</string>
+    <string name="goal_hours_minutes_format">%1$d Std %2$d Min</string>
+    <string name="settings_reminder_time">Tägliche Erinnerung</string>
+    <string name="settings_reminder_description">Benachrichtigung, wenn du dein Tagesziel nicht erreicht hast</string>
+
+    <!-- Calendar -->
+    <string name="calendar_previous_month">Vorheriger Monat</string>
+    <string name="calendar_next_month">Nächster Monat</string>
+    <string name="calendar_day_monday">Mo</string>
+    <string name="calendar_day_tuesday">Di</string>
+    <string name="calendar_day_wednesday">Mi</string>
+    <string name="calendar_day_thursday">Do</string>
+    <string name="calendar_day_friday">Fr</string>
+    <string name="calendar_day_saturday">Sa</string>
+    <string name="calendar_day_sunday">So</string>
+    <string name="legend_complete">Vollständig</string>
+    <string name="legend_partial">Teilweise</string>
+    <string name="popup_total">Gesamt: %d Min</string>
+    <string name="popup_total_complete">Gesamt: %d Min ✓</string>
+
+    <!-- Legacy (for reference) -->
+    <string name="today_activity">Heute: %s</string>
+    <string name="no_activity_today">Heute noch keine Aktivität</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Tägliche Erinnerungen</string>
+    <string name="notification_channel_description">Erinnert dich, deine Serie fortzusetzen</string>
+    <string name="notification_title">Unterbrich deine Serie nicht!</string>
+    <string name="notification_text">Du hast dein Tagesziel noch nicht erreicht. Halte deine Serie aufrecht!</string>
+</resources>
