@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -16,10 +17,12 @@ import com.streaktracker.R
 
 object NotificationHelper {
     
+    private const val TAG = "NotificationHelper"
     const val CHANNEL_ID = "streak_reminder_channel"
     const val NOTIFICATION_ID = 1001
     
     fun createNotificationChannel(context: Context) {
+        Log.d(TAG, "Creating notification channel")
         val name = context.getString(R.string.notification_channel_name)
         val descriptionText = context.getString(R.string.notification_channel_description)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -30,16 +33,22 @@ object NotificationHelper {
         
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+        Log.d(TAG, "Notification channel created")
     }
     
     fun showReminderNotification(context: Context) {
+        Log.d(TAG, "showReminderNotification called")
+        
         // Check notification permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            Log.d(TAG, "POST_NOTIFICATIONS permission granted: $hasPermission")
+            
+            if (!hasPermission) {
+                Log.w(TAG, "Notification permission not granted, cannot show notification")
                 return
             }
         }
@@ -66,6 +75,7 @@ object NotificationHelper {
             .build()
         
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        Log.d(TAG, "Notification posted with ID: $NOTIFICATION_ID")
     }
     
     fun cancelReminderNotification(context: Context) {

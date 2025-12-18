@@ -5,14 +5,18 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import com.streaktracker.data.SettingsDataStore
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 object ReminderScheduler {
     
+    private const val TAG = "ReminderScheduler"
     private const val REQUEST_CODE = 1001
     
     private fun getReminderTime(context: Context): LocalTime {
@@ -20,6 +24,7 @@ object ReminderScheduler {
         return runBlocking {
             val hour = settings.getReminderHour()
             val minute = settings.getReminderMinute()
+            Log.d(TAG, "Reminder time from settings: $hour:$minute")
             LocalTime.of(hour, minute)
         }
     }
@@ -29,14 +34,23 @@ object ReminderScheduler {
         
         // Check if we can schedule exact alarms on Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
+            val canSchedule = alarmManager.canScheduleExactAlarms()
+            Log.d(TAG, "Can schedule exact alarms: $canSchedule")
+            if (!canSchedule) {
                 // Fall back to inexact alarm if permission not granted
+                Log.w(TAG, "Exact alarm permission not granted, using inexact alarm")
                 scheduleInexactReminder(context, alarmManager)
                 return
             }
         }
         
         val triggerTime = calculateNextTriggerTime(context)
+        val triggerDateTime = LocalDateTime.ofInstant(
+            java.time.Instant.ofEpochMilli(triggerTime),
+            ZoneId.systemDefault()
+        )
+        Log.d(TAG, "Scheduling exact alarm for: ${triggerDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
+        
         val pendingIntent = createPendingIntent(context)
         
         try {
@@ -46,14 +60,17 @@ object ReminderScheduler {
                     triggerTime,
                     pendingIntent
                 )
+                Log.d(TAG, "Exact alarm scheduled successfully")
             } else {
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     triggerTime,
                     pendingIntent
                 )
+                Log.d(TAG, "Exact alarm (pre-M) scheduled successfully")
             }
         } catch (e: SecurityException) {
+            Log.e(TAG, "SecurityException scheduling exact alarm", e)
             // Fallback to inexact alarm if exact alarm permission is denied
             scheduleInexactReminder(context, alarmManager)
         }
