@@ -1,5 +1,6 @@
 package com.streaktracker.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -53,6 +54,11 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+
+    // Handle back button when settings is open
+    BackHandler(enabled = uiState.showSettings) {
+        onCloseSettings()
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
