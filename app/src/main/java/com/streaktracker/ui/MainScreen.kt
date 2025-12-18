@@ -1,7 +1,7 @@
 package com.streaktracker.ui
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -80,11 +84,13 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Streak Display
-            StreakDisplay(
-                streak = uiState.currentStreak,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+            // Streak Display (hidden while loading)
+            if (!uiState.isLoading) {
+                StreakDisplay(
+                    streak = uiState.currentStreak,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            }
 
             // Progress Bar
             ProgressDisplay(
@@ -160,12 +166,27 @@ fun StreakDisplay(
     streak: Int,
     modifier: Modifier = Modifier
 ) {
-    val animatedStreak by animateFloatAsState(
-        targetValue = streak.toFloat(),
-        animationSpec = tween(durationMillis = 500),
-        label = "streak"
-    )
+    // Track previous streak to detect extensions
+    var previousStreak by remember { mutableStateOf(streak) }
+    val animatedValue = remember { Animatable(streak.toFloat()) }
 
+    // Handle streak changes
+    LaunchedEffect(streak) {
+        if (streak > previousStreak && previousStreak > 0) {
+            // Streak extended! Celebrate by replaying from 1
+            animatedValue.snapTo(1f)
+            animatedValue.animateTo(
+                targetValue = streak.toFloat(),
+                animationSpec = tween(durationMillis = 150 * streak) // ~150ms per day
+            )
+        } else {
+            // No animation: first load, reset, or decrease
+            animatedValue.snapTo(streak.toFloat())
+        }
+        previousStreak = streak
+    }
+
+    val displayedStreak = animatedValue.value.toInt()
     val hasStreak = streak > 0
 
     Row(
@@ -204,7 +225,7 @@ fun StreakDisplay(
 
         if (hasStreak) {
             Text(
-                text = animatedStreak.toInt().toString(),
+                text = displayedStreak.toString(),
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = FireOrange
