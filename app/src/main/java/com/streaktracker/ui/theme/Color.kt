@@ -15,7 +15,7 @@ val SurfaceDark = Color(0xFF2D2D2D)
 
 // Activity colors
 val RunningColor = Color(0xFF4CAF50)     // Green
-val AerobicColor = Color(0xFF2196F3)     // Blue
+val AerobicColor = Color(0xFF9575CD)     // Purple
 val SwimmingColor = Color(0xFF00BCD4)    // Cyan
 
 // Text colors

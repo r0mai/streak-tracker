@@ -3,8 +3,8 @@
     <string name="app_name">Streak Tracker</string>
 
     <!-- Activity types -->
-    <string name="running">Running</string>
-    <string name="aerobic">Aerobic</string>
+    <string name="running">Walking</string>
+    <string name="aerobic">Workout</string>
     <string name="swimming">Swimming</string>
 
     <!-- Streak display -->
