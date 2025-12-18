@@ -84,8 +84,10 @@ fun CalendarView(
                     )
                 }
 
+                val monthName = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    .replaceFirstChar { it.uppercaseChar() }
                 Text(
-                    text = "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
+                    text = "$monthName ${currentMonth.year}",
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.SemiBold
                     )
