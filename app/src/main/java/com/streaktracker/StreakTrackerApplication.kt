@@ -4,7 +4,7 @@ import android.app.Application
 import com.streaktracker.data.ActivityDatabase
 import com.streaktracker.data.SettingsDataStore
 import com.streaktracker.notification.NotificationHelper
-import com.streaktracker.notification.ReminderWorker
+import com.streaktracker.notification.ReminderScheduler
 import com.streaktracker.repository.ActivityRepository
 
 class StreakTrackerApplication : Application() {
@@ -31,8 +31,8 @@ class StreakTrackerApplication : Application() {
         // Create notification channel
         NotificationHelper.createNotificationChannel(this)
 
-        // Schedule daily reminder
-        ReminderWorker.scheduleReminder(this)
+        // Schedule daily reminder using AlarmManager for exact timing
+        ReminderScheduler.scheduleReminder(this)
     }
 }
 

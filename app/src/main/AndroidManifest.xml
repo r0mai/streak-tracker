@@ -5,8 +5,12 @@
     <!-- Notification permission for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
-    <!-- For WorkManager to reschedule after reboot -->
+    <!-- For rescheduling after reboot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- For exact alarm scheduling (Android 12+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
         android:name=".StreakTrackerApplication"
@@ -29,6 +33,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Alarm receiver for daily reminders -->
+        <receiver
+            android:name=".notification.AlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.streaktracker.ACTION_SHOW_REMINDER" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Boot receiver to reschedule reminders after device restart -->
+        <receiver
+            android:name=".notification.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

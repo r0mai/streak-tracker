@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.streaktracker.notification.NotificationHelper
-import com.streaktracker.notification.ReminderWorker
+import com.streaktracker.notification.ReminderScheduler
 import com.streaktracker.ui.MainScreen
 import com.streaktracker.ui.MainViewModel
 import com.streaktracker.ui.theme.StreakTrackerTheme
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     ) { isGranted: Boolean ->
         if (isGranted) {
             // Permission granted, reschedule reminder
-            ReminderWorker.scheduleReminder(this)
+            ReminderScheduler.scheduleReminder(this)
         }
     }
     
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         // Reschedule reminder when app comes to foreground
-        ReminderWorker.scheduleReminder(this)
+        ReminderScheduler.scheduleReminder(this)
         // Check if day changed while app was in background and refresh if needed
         viewModel.refreshForDayChange()
     }
