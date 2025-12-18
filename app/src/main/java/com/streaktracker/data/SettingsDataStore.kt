@@ -18,12 +18,13 @@ class SettingsDataStore(private val context: Context) {
         private val DAILY_GOAL_KEY = intPreferencesKey("daily_goal_minutes")
         private val REMINDER_HOUR_KEY = intPreferencesKey("reminder_hour")
         private val REMINDER_MINUTE_KEY = intPreferencesKey("reminder_minute")
-        
+
         const val DEFAULT_DAILY_GOAL = 30
         const val DEFAULT_REMINDER_HOUR = 20 // 8 PM
         const val DEFAULT_REMINDER_MINUTE = 0
 
         val GOAL_OPTIONS = listOf(15, 30, 60, 90, 120)
+        val LANGUAGE_OPTIONS = listOf("system", "en", "hu", "de")
     }
 
     val dailyGoalMinutes: Flow<Int> = context.dataStore.data.map { preferences ->

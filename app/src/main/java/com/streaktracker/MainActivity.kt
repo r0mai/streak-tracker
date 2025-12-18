@@ -4,9 +4,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModelProvider
 import com.streaktracker.notification.NotificationHelper
 import com.streaktracker.notification.ReminderScheduler
@@ -21,7 +23,7 @@ import com.streaktracker.ui.MainScreen
 import com.streaktracker.ui.MainViewModel
 import com.streaktracker.ui.theme.StreakTrackerTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     
     private lateinit var viewModel: MainViewModel
     
@@ -36,7 +38,7 @@ class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // Request notification permission for Android 13+
         requestNotificationPermission()
         
@@ -91,6 +93,10 @@ class MainActivity : ComponentActivity() {
                             // Reschedule reminder with the new time directly (avoids race condition with DataStore)
                             ReminderScheduler.scheduleReminderAt(this, hour, minute)
                         },
+                        onSetLanguage = { languageCode ->
+                            viewModel.setLanguage(languageCode)
+                            applyLanguage(languageCode)
+                        },
                         onDayClick = { date ->
                             viewModel.selectDay(date)
                         },
@@ -111,6 +117,16 @@ class MainActivity : ComponentActivity() {
         ReminderScheduler.scheduleReminder(this)
         // Check if day changed while app was in background and refresh if needed
         viewModel.refreshForDayChange()
+        // Sync language state with system (in case changed via system settings)
+        viewModel.syncLanguage(getCurrentLanguage())
+    }
+
+    private fun getCurrentLanguage(): String {
+        val locales = AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty) return "system"
+        // Get just the language code (e.g., "en" from "en-US")
+        val locale = locales[0]
+        return locale?.language ?: "system"
     }
     
     private fun requestNotificationPermission() {
@@ -131,6 +147,17 @@ class MainActivity : ComponentActivity() {
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
+        }
+    }
+
+    companion object {
+        fun applyLanguage(languageCode: String) {
+            val localeList = if (languageCode == "system") {
+                LocaleListCompat.getEmptyLocaleList()
+            } else {
+                LocaleListCompat.forLanguageTags(languageCode)
+            }
+            AppCompatDelegate.setApplicationLocales(localeList)
         }
     }
 }

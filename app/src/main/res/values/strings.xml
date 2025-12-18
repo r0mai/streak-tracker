@@ -33,6 +33,8 @@
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_content_description">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="language_system">System default</string>
     <string name="settings_daily_goal">Daily Goal</string>
     <string name="goal_minutes_format">%d min</string>
     <string name="goal_hours_format">%d h</string>

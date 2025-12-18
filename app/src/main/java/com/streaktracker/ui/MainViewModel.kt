@@ -37,7 +37,9 @@ data class MainUiState(
     val selectedDay: LocalDate? = null,
     // Reminder time settings
     val reminderHour: Int = SettingsDataStore.DEFAULT_REMINDER_HOUR,
-    val reminderMinute: Int = SettingsDataStore.DEFAULT_REMINDER_MINUTE
+    val reminderMinute: Int = SettingsDataStore.DEFAULT_REMINDER_MINUTE,
+    // Language setting
+    val language: String = "system"
 )
 
 class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
@@ -256,6 +258,14 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
         viewModelScope.launch {
             repository.setReminderTime(hour, minute)
         }
+    }
+
+    fun setLanguage(languageCode: String) {
+        _uiState.value = _uiState.value.copy(language = languageCode)
+    }
+
+    fun syncLanguage(languageCode: String) {
+        _uiState.value = _uiState.value.copy(language = languageCode)
     }
 
     // ===== Calendar Day Selection =====

@@ -45,6 +45,7 @@ fun MainScreen(
     onCloseSettings: () -> Unit,
     onSetDailyGoal: (Int) -> Unit,
     onSetReminderTime: (Int, Int) -> Unit,
+    onSetLanguage: (String) -> Unit,
     onDayClick: (java.time.LocalDate) -> Unit,
     onClearSelectedDay: () -> Unit,
     onPreviousMonth: () -> Unit,
@@ -157,8 +158,10 @@ fun MainScreen(
                 currentGoal = uiState.dailyGoal,
                 reminderHour = uiState.reminderHour,
                 reminderMinute = uiState.reminderMinute,
+                currentLanguage = uiState.language,
                 onSetGoal = onSetDailyGoal,
                 onSetReminderTime = onSetReminderTime,
+                onSetLanguage = onSetLanguage,
                 onClose = onCloseSettings
             )
         }
@@ -515,8 +518,10 @@ fun SettingsPanel(
     currentGoal: Int,
     reminderHour: Int,
     reminderMinute: Int,
+    currentLanguage: String,
     onSetGoal: (Int) -> Unit,
     onSetReminderTime: (Int, Int) -> Unit,
+    onSetLanguage: (String) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -596,6 +601,25 @@ fun SettingsPanel(
                     minute = reminderMinute,
                     onTimeChanged = onSetReminderTime
                 )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(
+                    text = stringResource(R.string.settings_language),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SettingsDataStore.LANGUAGE_OPTIONS.forEach { languageCode ->
+                    LanguageOptionRow(
+                        languageCode = languageCode,
+                        isSelected = languageCode == currentLanguage,
+                        onSelect = { onSetLanguage(languageCode) }
+                    )
+                }
             }
         }
     }
@@ -746,6 +770,55 @@ fun GoalOptionRow(
                     minutes % 60 == 0 -> stringResource(R.string.goal_hours_format, minutes / 60)
                     else -> stringResource(R.string.goal_hours_minutes_format, minutes / 60, minutes % 60)
                 },
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                )
+            )
+            RadioButton(
+                selected = isSelected,
+                onClick = onSelect
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LanguageOptionRow(
+    languageCode: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val displayName = if (languageCode == "system") {
+        stringResource(R.string.language_system)
+    } else {
+        val locale = java.util.Locale(languageCode)
+        locale.getDisplayLanguage(locale).replaceFirstChar { it.uppercaseChar() }
+    }
+
+    Card(
+        onClick = onSelect,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = displayName,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                 )
