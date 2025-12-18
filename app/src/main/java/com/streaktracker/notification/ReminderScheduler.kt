@@ -5,14 +5,24 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.streaktracker.data.SettingsDataStore
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
 object ReminderScheduler {
     
-    private val REMINDER_TIME = LocalTime.of(20, 0) // 8 PM
     private const val REQUEST_CODE = 1001
+    
+    private fun getReminderTime(context: Context): LocalTime {
+        val settings = SettingsDataStore(context)
+        return runBlocking {
+            val hour = settings.getReminderHour()
+            val minute = settings.getReminderMinute()
+            LocalTime.of(hour, minute)
+        }
+    }
     
     fun scheduleReminder(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -26,7 +36,7 @@ object ReminderScheduler {
             }
         }
         
-        val triggerTime = calculateNextTriggerTime()
+        val triggerTime = calculateNextTriggerTime(context)
         val pendingIntent = createPendingIntent(context)
         
         try {
@@ -51,10 +61,11 @@ object ReminderScheduler {
     
     fun scheduleNextReminder(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val reminderTime = getReminderTime(context)
         
-        // Schedule for tomorrow at 8 PM
+        // Schedule for tomorrow at the configured time
         val tomorrow = LocalDate.now().plusDays(1)
-        val triggerTime = tomorrow.atTime(REMINDER_TIME)
+        val triggerTime = tomorrow.atTime(reminderTime)
             .atZone(ZoneId.systemDefault())
             .toInstant()
             .toEpochMilli()
@@ -94,12 +105,13 @@ object ReminderScheduler {
         alarmManager.cancel(pendingIntent)
     }
     
-    private fun calculateNextTriggerTime(): Long {
+    private fun calculateNextTriggerTime(context: Context): Long {
+        val reminderTime = getReminderTime(context)
         val now = java.time.LocalDateTime.now()
-        var nextReminder = now.toLocalDate().atTime(REMINDER_TIME)
+        var nextReminder = now.toLocalDate().atTime(reminderTime)
         
         if (now.isAfter(nextReminder)) {
-            // If it's past 8 PM, schedule for tomorrow
+            // If it's past the reminder time, schedule for tomorrow
             nextReminder = nextReminder.plusDays(1)
         }
         
@@ -123,7 +135,7 @@ object ReminderScheduler {
     }
     
     private fun scheduleInexactReminder(context: Context, alarmManager: AlarmManager) {
-        val triggerTime = calculateNextTriggerTime()
+        val triggerTime = calculateNextTriggerTime(context)
         scheduleInexactReminderAt(context, alarmManager, triggerTime)
     }
     

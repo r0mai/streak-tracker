@@ -86,6 +86,11 @@ class MainActivity : ComponentActivity() {
                         onSetDailyGoal = { minutes ->
                             viewModel.setDailyGoal(minutes)
                         },
+                        onSetReminderTime = { hour, minute ->
+                            viewModel.setReminderTime(hour, minute)
+                            // Reschedule reminder with new time
+                            ReminderScheduler.scheduleReminder(this)
+                        },
                         onDayClick = { date ->
                             viewModel.selectDay(date)
                         },

@@ -184,4 +184,17 @@ class ActivityRepository(
         // Update today's status with new goal (if today exists and is not finalized)
         updateTodayStatus()
     }
+
+    fun getReminderTime(): Flow<Pair<Int, Int>> {
+        return combine(
+            settings.reminderHour,
+            settings.reminderMinute
+        ) { hour, minute ->
+            Pair(hour, minute)
+        }
+    }
+
+    suspend fun setReminderTime(hour: Int, minute: Int) {
+        settings.setReminderTime(hour, minute)
+    }
 }

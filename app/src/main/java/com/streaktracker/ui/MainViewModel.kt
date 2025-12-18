@@ -34,7 +34,10 @@ data class MainUiState(
     // Settings panel state
     val showSettings: Boolean = false,
     // Calendar day selection state
-    val selectedDay: LocalDate? = null
+    val selectedDay: LocalDate? = null,
+    // Reminder time settings
+    val reminderHour: Int = SettingsDataStore.DEFAULT_REMINDER_HOUR,
+    val reminderMinute: Int = SettingsDataStore.DEFAULT_REMINDER_MINUTE
 )
 
 class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
@@ -47,6 +50,7 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
     private var todayProgressJob: Job? = null
     private var todayActivitiesJob: Job? = null
     private var dailyGoalJob: Job? = null
+    private var reminderTimeJob: Job? = null
     private var midnightTimerJob: Job? = null
 
     init {
@@ -54,6 +58,7 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
         observeTodayProgress()
         observeTodayActivities()
         observeDailyGoal()
+        observeReminderTime()
         startMidnightTimer()
     }
 
@@ -107,6 +112,19 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
         dailyGoalJob = viewModelScope.launch {
             repository.getDailyGoal().collect { goal ->
                 _uiState.value = _uiState.value.copy(dailyGoal = goal)
+            }
+        }
+    }
+
+    private fun observeReminderTime() {
+        reminderTimeJob?.cancel()
+
+        reminderTimeJob = viewModelScope.launch {
+            repository.getReminderTime().collect { (hour, minute) ->
+                _uiState.value = _uiState.value.copy(
+                    reminderHour = hour,
+                    reminderMinute = minute
+                )
             }
         }
     }
@@ -231,6 +249,12 @@ class MainViewModel(private val repository: ActivityRepository) : ViewModel() {
     fun setDailyGoal(minutes: Int) {
         viewModelScope.launch {
             repository.setDailyGoal(minutes)
+        }
+    }
+
+    fun setReminderTime(hour: Int, minute: Int) {
+        viewModelScope.launch {
+            repository.setReminderTime(hour, minute)
         }
     }
 

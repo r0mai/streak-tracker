@@ -37,6 +37,8 @@
     <string name="goal_minutes_format">%d min</string>
     <string name="goal_hours_format">%d h</string>
     <string name="goal_hours_minutes_format">%1$d h %2$d min</string>
+    <string name="settings_reminder_time">Daily Reminder</string>
+    <string name="settings_reminder_description">Get notified if you haven\'t logged activity</string>
 
     <!-- Calendar -->
     <string name="calendar_previous_month">Previous month</string>

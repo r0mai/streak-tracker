@@ -44,6 +44,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onCloseSettings: () -> Unit,
     onSetDailyGoal: (Int) -> Unit,
+    onSetReminderTime: (Int, Int) -> Unit,
     onDayClick: (java.time.LocalDate) -> Unit,
     onClearSelectedDay: () -> Unit,
     onPreviousMonth: () -> Unit,
@@ -154,7 +155,10 @@ fun MainScreen(
         ) {
             SettingsPanel(
                 currentGoal = uiState.dailyGoal,
+                reminderHour = uiState.reminderHour,
+                reminderMinute = uiState.reminderMinute,
                 onSetGoal = onSetDailyGoal,
+                onSetReminderTime = onSetReminderTime,
                 onClose = onCloseSettings
             )
         }
@@ -509,10 +513,15 @@ fun DurationButton(
 @Composable
 fun SettingsPanel(
     currentGoal: Int,
+    reminderHour: Int,
+    reminderMinute: Int,
     onSetGoal: (Int) -> Unit,
+    onSetReminderTime: (Int, Int) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
+    
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -538,24 +547,167 @@ fun SettingsPanel(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = stringResource(R.string.settings_daily_goal),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.SemiBold
+                Text(
+                    text = stringResource(R.string.settings_daily_goal),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            SettingsDataStore.GOAL_OPTIONS.forEach { goalOption ->
-                GoalOptionRow(
-                    minutes = goalOption,
-                    isSelected = goalOption == currentGoal,
-                    onSelect = { onSetGoal(goalOption) }
+                SettingsDataStore.GOAL_OPTIONS.forEach { goalOption ->
+                    GoalOptionRow(
+                        minutes = goalOption,
+                        isSelected = goalOption == currentGoal,
+                        onSelect = { onSetGoal(goalOption) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(
+                    text = stringResource(R.string.settings_reminder_time),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.settings_reminder_description),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ReminderTimePicker(
+                    hour = reminderHour,
+                    minute = reminderMinute,
+                    onTimeChanged = onSetReminderTime
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ReminderTimePicker(
+    hour: Int,
+    minute: Int,
+    onTimeChanged: (Int, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Hour picker
+            TimePickerWheel(
+                value = hour,
+                range = 0..23,
+                onValueChange = { newHour -> onTimeChanged(newHour, minute) },
+                formatValue = { String.format("%02d", it) }
+            )
+
+            Text(
+                text = ":",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            // Minute picker
+            TimePickerWheel(
+                value = minute,
+                range = 0..59,
+                step = 5,
+                onValueChange = { newMinute -> onTimeChanged(hour, newMinute) },
+                formatValue = { String.format("%02d", it) }
+            )
+        }
+    }
+}
+
+@Composable
+fun TimePickerWheel(
+    value: Int,
+    range: IntRange,
+    step: Int = 1,
+    onValueChange: (Int) -> Unit,
+    formatValue: (Int) -> String,
+    modifier: Modifier = Modifier
+) {
+    val values = range.filter { it % step == 0 }
+    val currentIndex = values.indexOf(value).coerceAtLeast(0)
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Up button
+        IconButton(
+            onClick = {
+                val newIndex = (currentIndex - 1 + values.size) % values.size
+                onValueChange(values[newIndex])
+            }
+        ) {
+            Text(
+                text = "▲",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        // Current value
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = formatValue(value),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+            )
+        }
+
+        // Down button
+        IconButton(
+            onClick = {
+                val newIndex = (currentIndex + 1) % values.size
+                onValueChange(values[newIndex])
+            }
+        ) {
+            Text(
+                text = "▼",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
