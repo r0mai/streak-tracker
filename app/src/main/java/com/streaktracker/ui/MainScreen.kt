@@ -666,10 +666,10 @@ fun TimePickerWheel(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Up button
+        // Up button (increases value)
         IconButton(
             onClick = {
-                val newIndex = (currentIndex - 1 + values.size) % values.size
+                val newIndex = (currentIndex + 1) % values.size
                 onValueChange(values[newIndex])
             }
         ) {
@@ -696,10 +696,10 @@ fun TimePickerWheel(
             )
         }
 
-        // Down button
+        // Down button (decreases value)
         IconButton(
             onClick = {
-                val newIndex = (currentIndex + 1) % values.size
+                val newIndex = (currentIndex - 1 + values.size) % values.size
                 onValueChange(values[newIndex])
             }
         ) {
