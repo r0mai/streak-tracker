@@ -29,7 +29,19 @@ object ReminderScheduler {
         }
     }
     
+    /**
+     * Schedule reminder using the time stored in settings.
+     */
     fun scheduleReminder(context: Context) {
+        val reminderTime = getReminderTime(context)
+        scheduleReminderAt(context, reminderTime.hour, reminderTime.minute)
+    }
+    
+    /**
+     * Schedule reminder at a specific time. Use this when you have the time directly
+     * (e.g., right after user changes it) to avoid race conditions with DataStore.
+     */
+    fun scheduleReminderAt(context: Context, hour: Int, minute: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         
         // Check if we can schedule exact alarms on Android 12+
@@ -39,17 +51,17 @@ object ReminderScheduler {
             if (!canSchedule) {
                 // Fall back to inexact alarm if permission not granted
                 Log.w(TAG, "Exact alarm permission not granted, using inexact alarm")
-                scheduleInexactReminder(context, alarmManager)
+                scheduleInexactReminderAt(context, hour, minute)
                 return
             }
         }
         
-        val triggerTime = calculateNextTriggerTime(context)
+        val triggerTime = calculateNextTriggerTimeFor(hour, minute)
         val triggerDateTime = LocalDateTime.ofInstant(
             java.time.Instant.ofEpochMilli(triggerTime),
             ZoneId.systemDefault()
         )
-        Log.d(TAG, "Scheduling exact alarm for: ${triggerDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
+        Log.d(TAG, "Scheduling exact alarm for: ${triggerDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))} (requested time: $hour:$minute)")
         
         val pendingIntent = createPendingIntent(context)
         
@@ -72,8 +84,14 @@ object ReminderScheduler {
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException scheduling exact alarm", e)
             // Fallback to inexact alarm if exact alarm permission is denied
-            scheduleInexactReminder(context, alarmManager)
+            scheduleInexactReminderAt(context, hour, minute)
         }
+    }
+    
+    private fun scheduleInexactReminderAt(context: Context, hour: Int, minute: Int) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val triggerTime = calculateNextTriggerTimeFor(hour, minute)
+        scheduleInexactReminderAtMillis(context, alarmManager, triggerTime)
     }
     
     fun scheduleNextReminder(context: Context) {
@@ -87,12 +105,14 @@ object ReminderScheduler {
             .toInstant()
             .toEpochMilli()
         
+        Log.d(TAG, "Scheduling next reminder for tomorrow at ${reminderTime.hour}:${reminderTime.minute}")
+        
         val pendingIntent = createPendingIntent(context)
         
         // Check if we can schedule exact alarms on Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!alarmManager.canScheduleExactAlarms()) {
-                scheduleInexactReminderAt(context, alarmManager, triggerTime)
+                scheduleInexactReminderAtMillis(context, alarmManager, triggerTime)
                 return
             }
         }
@@ -112,7 +132,7 @@ object ReminderScheduler {
                 )
             }
         } catch (e: SecurityException) {
-            scheduleInexactReminderAt(context, alarmManager, triggerTime)
+            scheduleInexactReminderAtMillis(context, alarmManager, triggerTime)
         }
     }
     
@@ -122,9 +142,9 @@ object ReminderScheduler {
         alarmManager.cancel(pendingIntent)
     }
     
-    private fun calculateNextTriggerTime(context: Context): Long {
-        val reminderTime = getReminderTime(context)
-        val now = java.time.LocalDateTime.now()
+    private fun calculateNextTriggerTimeFor(hour: Int, minute: Int): Long {
+        val reminderTime = LocalTime.of(hour, minute)
+        val now = LocalDateTime.now()
         var nextReminder = now.toLocalDate().atTime(reminderTime)
         
         if (now.isAfter(nextReminder)) {
@@ -151,12 +171,7 @@ object ReminderScheduler {
         )
     }
     
-    private fun scheduleInexactReminder(context: Context, alarmManager: AlarmManager) {
-        val triggerTime = calculateNextTriggerTime(context)
-        scheduleInexactReminderAt(context, alarmManager, triggerTime)
-    }
-    
-    private fun scheduleInexactReminderAt(context: Context, alarmManager: AlarmManager, triggerTime: Long) {
+    private fun scheduleInexactReminderAtMillis(context: Context, alarmManager: AlarmManager, triggerTime: Long) {
         val pendingIntent = createPendingIntent(context)
         
         // Use setWindow for a reasonable window around the target time

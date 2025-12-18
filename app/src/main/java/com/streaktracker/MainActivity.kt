@@ -88,8 +88,8 @@ class MainActivity : ComponentActivity() {
                         },
                         onSetReminderTime = { hour, minute ->
                             viewModel.setReminderTime(hour, minute)
-                            // Reschedule reminder with new time
-                            ReminderScheduler.scheduleReminder(this)
+                            // Reschedule reminder with the new time directly (avoids race condition with DataStore)
+                            ReminderScheduler.scheduleReminderAt(this, hour, minute)
                         },
                         onDayClick = { date ->
                             viewModel.selectDay(date)
