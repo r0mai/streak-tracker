@@ -38,18 +38,18 @@
     <string name="goal_hours_format">%d h</string>
     <string name="goal_hours_minutes_format">%1$d h %2$d min</string>
     <string name="settings_reminder_time">Daily Reminder</string>
-    <string name="settings_reminder_description">Get notified if you haven\'t logged activity</string>
+    <string name="settings_reminder_description">Get notified if you haven\'t reached your daily goal</string>
 
     <!-- Calendar -->
     <string name="calendar_previous_month">Previous month</string>
     <string name="calendar_next_month">Next month</string>
-    <string name="calendar_day_sunday">Su</string>
     <string name="calendar_day_monday">Mo</string>
     <string name="calendar_day_tuesday">Tu</string>
     <string name="calendar_day_wednesday">We</string>
     <string name="calendar_day_thursday">Th</string>
     <string name="calendar_day_friday">Fr</string>
     <string name="calendar_day_saturday">Sa</string>
+    <string name="calendar_day_sunday">Su</string>
     <string name="legend_complete">Complete</string>
     <string name="legend_partial">Partial</string>
     <string name="popup_total">Total: %d min</string>
@@ -61,8 +61,8 @@
 
     <!-- Notifications -->
     <string name="notification_channel_name">Daily Reminders</string>
-    <string name="notification_channel_description">Reminds you to log your daily activity</string>
+    <string name="notification_channel_description">Reminds you to keep your streak going</string>
     <string name="notification_title">Don\'t break your streak!</string>
-    <string name="notification_text">You haven\'t logged your activity today. Keep your streak going!</string>
+    <string name="notification_text">You haven\'t reached your daily goal yet. Keep your streak going!</string>
 </resources>
 
