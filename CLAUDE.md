@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Streak Tracker is a native Android app for tracking daily exercise streaks. Users log one of three activities (Running, Aerobic, Swimming) each day to maintain their streak. Single-user, offline-first design with local SQLite storage.
+Streak Tracker is a native Android app for tracking daily exercise streaks. Users log activities with durations (Walking, Workout, Swimming) throughout the day to meet a configurable daily goal and maintain their streak. Single-user, offline-first design with local SQLite storage.
 
 ## Documentation
 
@@ -11,11 +11,12 @@ Streak Tracker is a native Android app for tracking daily exercise streaks. User
 
 ## Tech Stack
 
-- **Language:** Kotlin
+- **Language:** Kotlin 2.0
 - **UI:** Jetpack Compose + Material 3
 - **Architecture:** MVVM with Repository pattern
 - **Database:** Room (SQLite)
-- **Background Tasks:** WorkManager
+- **Settings:** DataStore Preferences
+- **Notifications:** AlarmManager + BroadcastReceiver
 - **Async:** Kotlin Coroutines + Flow
 - **Min SDK:** API 26 (Android 8.0)
 
@@ -41,10 +42,10 @@ Streak Tracker is a native Android app for tracking daily exercise streaks. User
 app/src/main/java/com/streaktracker/
 ├── MainActivity.kt              # Entry point, hosts Compose UI
 ├── StreakTrackerApplication.kt  # App singleton, owns DB & Repository
-├── data/                        # Room entities, DAO, database
+├── data/                        # Room entities, DAOs, database, settings
 ├── repository/                  # Business logic, streak calculation
 ├── ui/                          # Compose screens, ViewModel, theme
-└── notification/                # WorkManager reminder system
+└── notification/                # AlarmManager-based reminder system
 ```
 
 ## Task Tracking
@@ -58,9 +59,12 @@ Development tasks are tracked in the `tasks/` folder. Each `.md` file represents
 | To modify... | Edit |
 |--------------|------|
 | Activity types | `data/ActivityType.kt` |
-| Database schema | `data/ActivityEntry.kt` |
+| Database schema (activities) | `data/ActivityEntry.kt` |
+| Database schema (day status) | `data/DayStatus.kt` |
+| User settings | `data/SettingsDataStore.kt` |
 | Streak logic | `repository/ActivityRepository.kt` |
 | Main UI | `ui/MainScreen.kt` |
 | Calendar | `ui/CalendarView.kt` |
-| Notifications | `notification/ReminderWorker.kt` |
+| Notifications | `notification/ReminderScheduler.kt` |
 | Theme/colors | `ui/theme/Color.kt`, `ui/theme/Theme.kt` |
+

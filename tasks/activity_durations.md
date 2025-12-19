@@ -2,7 +2,7 @@
 
 Extend activities with duration tracking and introduce a daily goal system.
 
-## Status: Implementation Complete (Pending Testing)
+## Status: Complete
 
 ## Feature Summary
 
@@ -323,12 +323,14 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 - [x] Update `ReminderWorker` to check today's total vs goal
 - [ ] Update notification text if needed (optional)
 
-### Phase 10: Testing & Polish
-- [ ] Test migration with existing data
+### Phase 10: Basic testing
+- [x] Test migration with existing data
+- [x] Test goal changes don't affect past days
+- [x] Manual testing of full flow
+
+### Phase 11: Test edge cases (optional)
 - [ ] Test streak calculation edge cases
 - [ ] Test day finalization after multi-day gap
-- [ ] Test goal changes don't affect past days
-- [ ] Manual testing of full flow
 
 ---
 
