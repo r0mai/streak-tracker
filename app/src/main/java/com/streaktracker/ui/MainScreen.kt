@@ -24,6 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
+import android.graphics.RenderEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,6 +64,11 @@ fun MainScreen(
         onCloseSettings()
     }
 
+    // Handle back button when activity input panel is open
+    BackHandler(enabled = uiState.selectedActivityType != null) {
+        onCancelInput()
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -76,26 +85,11 @@ fun MainScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Settings Button Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = stringResource(R.string.settings_content_description),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Streak Display (hidden while loading)
             if (!uiState.isLoading) {
                 StreakDisplay(
                     streak = uiState.currentStreak,
+                    goalMet = uiState.todayProgress >= uiState.dailyGoal,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
             }
@@ -154,6 +148,20 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
 
+        // Settings button (floating top-right)
+        IconButton(
+            onClick = onOpenSettings,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = stringResource(R.string.settings_content_description),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         // Settings Panel Overlay
         AnimatedVisibility(
             visible = uiState.showSettings,
@@ -177,6 +185,7 @@ fun MainScreen(
 @Composable
 fun StreakDisplay(
     streak: Int,
+    goalMet: Boolean,
     modifier: Modifier = Modifier
 ) {
     // Track previous streak to detect extensions
@@ -201,6 +210,14 @@ fun StreakDisplay(
 
     val displayedStreak = animatedValue.value.toInt()
     val hasStreak = streak > 0
+    val isActive = hasStreak && goalMet
+
+    // Dimming filter for inactive flame
+    val dimmerMatrix = remember(isActive) {
+        ColorMatrix().apply {
+            setToScale(1f, 1f, 1f, 0.3f)
+        }
+    }
 
     Row(
         modifier = modifier,
@@ -214,13 +231,16 @@ fun StreakDisplay(
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
-                        colors = if (hasStreak) {
-                            listOf(
+                        colors = when {
+                            isActive -> listOf(
                                 FireOrangeLight.copy(alpha = 0.4f),
                                 Color.Transparent
                             )
-                        } else {
-                            listOf(
+                            hasStreak -> listOf(
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                                Color.Transparent
+                            )
+                            else -> listOf(
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f),
                                 Color.Transparent
                             )
@@ -230,7 +250,14 @@ fun StreakDisplay(
         ) {
             Text(
                 text = if (hasStreak) "🔥" else "💤",
-                fontSize = 48.sp
+                fontSize = 48.sp,
+                modifier = Modifier.graphicsLayer {
+                    renderEffect = if (!isActive && hasStreak) {
+                        RenderEffect.createColorFilterEffect(
+                            android.graphics.ColorMatrixColorFilter(dimmerMatrix.values)
+                        ).asComposeRenderEffect()
+                    } else null
+                }
             )
         }
 
@@ -382,10 +409,24 @@ fun ActivityButton(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = emoji,
-                fontSize = 32.sp
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                color.copy(alpha = 0.3f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            ) {
+                Text(
+                    text = emoji,
+                    fontSize = 32.sp
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -450,18 +491,30 @@ fun ActivityInputPanel(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                DurationButton(
-                    text = stringResource(R.string.duration_5min),
-                    onClick = { onAddDuration(5) }
-                )
-                DurationButton(
-                    text = stringResource(R.string.duration_15min),
-                    onClick = { onAddDuration(15) }
-                )
-                DurationButton(
-                    text = stringResource(R.string.duration_1h),
-                    onClick = { onAddDuration(60) }
-                )
+                FilledTonalButton(
+                    onClick = { onAddDuration(5) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.duration_5min))
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                FilledTonalButton(
+                    onClick = { onAddDuration(15) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.duration_15min))
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                FilledTonalButton(
+                    onClick = { onAddDuration(60) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.duration_1h))
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -502,20 +555,6 @@ fun ActivityInputPanel(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun DurationButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    FilledTonalButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Text(text)
     }
 }
 
