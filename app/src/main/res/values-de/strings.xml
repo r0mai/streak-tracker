@@ -25,7 +25,7 @@
     <string name="input_duration_format">+ %1$d Min %2$s %3$s</string>
 
     <!-- Action buttons -->
-    <string name="action_cancel">Zurück</string>
+    <string name="action_cancel">Abbrechen</string>
     <string name="action_clear">Löschen</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Fertig</string>

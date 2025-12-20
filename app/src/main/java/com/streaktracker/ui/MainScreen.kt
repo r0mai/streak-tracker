@@ -28,10 +28,12 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import android.graphics.RenderEffect
+import androidx.annotation.StringRes
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.streaktracker.R
 import com.streaktracker.data.ActivityType
@@ -442,6 +444,17 @@ fun ActivityButton(
     }
 }
 
+private val CompactButtonPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+
+@Composable
+private fun ButtonLabel(@StringRes textRes: Int) {
+    Text(
+        text = stringResource(textRes),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
 @Composable
 fun ActivityInputPanel(
     activityType: ActivityType,
@@ -493,27 +506,30 @@ fun ActivityInputPanel(
             ) {
                 FilledTonalButton(
                     onClick = { onAddDuration(5) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding
                 ) {
-                    Text(stringResource(R.string.duration_5min))
+                    ButtonLabel(R.string.duration_5min)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 FilledTonalButton(
                     onClick = { onAddDuration(15) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding
                 ) {
-                    Text(stringResource(R.string.duration_15min))
+                    ButtonLabel(R.string.duration_15min)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 FilledTonalButton(
                     onClick = { onAddDuration(60) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding
                 ) {
-                    Text(stringResource(R.string.duration_1h))
+                    ButtonLabel(R.string.duration_1h)
                 }
             }
 
@@ -526,9 +542,10 @@ fun ActivityInputPanel(
             ) {
                 OutlinedButton(
                     onClick = onCancel,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding
                 ) {
-                    Text(stringResource(R.string.action_cancel))
+                    ButtonLabel(R.string.action_cancel)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -536,9 +553,10 @@ fun ActivityInputPanel(
                 OutlinedButton(
                     onClick = onClearDuration,
                     modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding,
                     enabled = pendingDuration > 0
                 ) {
-                    Text(stringResource(R.string.action_clear))
+                    ButtonLabel(R.string.action_clear)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -546,12 +564,13 @@ fun ActivityInputPanel(
                 Button(
                     onClick = onConfirm,
                     modifier = Modifier.weight(1f),
+                    contentPadding = CompactButtonPadding,
                     enabled = pendingDuration > 0,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = color
                     )
                 ) {
-                    Text(stringResource(R.string.action_ok))
+                    ButtonLabel(R.string.action_ok)
                 }
             }
         }
